@@ -1,0 +1,64 @@
+import pygame
+import sys
+
+# Initialize pygame
+pygame.init()
+
+# Window settings
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Open World Car Game")
+
+# Colors
+GREEN = (34, 139, 34)
+GRAY = (100, 100, 100)
+
+# Car settings
+car_img = pygame.Surface((50, 30))
+car_img.fill((255, 0, 0))
+car_rect = car_img.get_rect(center=(400, 300))
+
+# Map (world) settings
+world_width, world_height = 3000, 3000
+car_x, car_y = world_width // 2, world_height // 2
+speed = 5
+angle = 0
+
+clock = pygame.time.Clock()
+
+# Game loop
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        angle += 5
+    if keys[pygame.K_RIGHT]:
+        angle -= 5
+    if keys[pygame.K_UP]:
+        car_x += speed * pygame.math.Vector2(1, 0).rotate(-angle).x
+        car_y += speed * pygame.math.Vector2(1, 0).rotate(-angle).y
+    if keys[pygame.K_DOWN]:
+        car_x -= speed * pygame.math.Vector2(1, 0).rotate(-angle).x
+        car_y -= speed * pygame.math.Vector2(1, 0).rotate(-angle).y
+
+    # Camera movement (center on car)
+    camera_x = car_x - WIDTH // 2
+    camera_y = car_y - HEIGHT // 2
+
+    # Draw world
+    screen.fill(GREEN)
+
+    # Draw roads or map features (for demo, gray rectangle)
+    pygame.draw.rect(screen, GRAY, (1000 - camera_x, 1000 - camera_y, 1000, 1000))
+
+    # Draw car
+    rotated_car = pygame.transform.rotate(car_img, angle)
+    rect = rotated_car.get_rect(center=(car_rect.width / 2, car_rect.height / 2))
+    screen.blit(rotated_car, (WIDTH // 2 - rect.width / 2, HEIGHT // 2 - rect.height / 2))
+
+    pygame.display.flip()
+    clock.tick(60)
